@@ -23,3 +23,14 @@ app.use(express.json()) //this is use when requesting json data
 
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
+
+//ERROR MIDDLEWARE
+app.use((err, req, res, next) => {
+    const statusCode = err.statuscode || 500; //if no error defined just send 500 internal server error
+    const message = err.message || 'Internal Server Error';
+    return res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message
+    });
+})
