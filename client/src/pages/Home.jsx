@@ -39,7 +39,7 @@ export default function Home() {
           <img
             src={heroMan}
             alt='Happy client using AgentHub'
-            className='relative w-64 sm:w-80 h-80 sm:h-96 object-cover rounded-3xl shadow-lg'
+            className='relative w-64 sm:w-80 h-80 sm:h-96 object-cover rounded-3xl'
           />
         </div>
       </section>
