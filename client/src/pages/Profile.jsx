@@ -11,6 +11,7 @@ import {
   signOutUserSuccess,
   signOutUserFailure,
 } from '../redux/user/userSlice'
+import { Link } from 'react-router-dom'
 
 export default function Profile() {
   const fileRef = useRef(null)
@@ -189,6 +190,13 @@ export default function Profile() {
           {loading ? 'Updating...' : 'Update'}
         </button>
       </form>
+
+      <Link
+        to='/create/listing'
+        className='bg-brand-navy text-white rounded-lg p-3 mt-4 uppercase text-center hover:bg-brand-navyLight transition block'
+      >
+        Add Listing
+      </Link>
 
       <div className='flex justify-between mt-5'>
         <span onClick={() => setShowDeleteModal(true)} className='text-red-700 cursor-pointer hover:underline'>
