@@ -36,6 +36,7 @@ export default function Home() {
           <div className='absolute w-72 h-72 sm:w-80 sm:h-80 bg-brand-green rounded-full -z-10 top-4 left-1/2 -translate-x-1/2 sm:left-8 sm:translate-x-0 opacity-90'></div>
           <div className='absolute w-24 h-24 bg-brand-navy rounded-full -z-10 bottom-0 left-0 opacity-90'></div>
           <div className='absolute w-20 h-20 bg-brand-wood rounded-full -z-10 top-0 right-4 sm:right-0 opacity-90'></div>
+          <div className='absolute w-40 h-40 bg-brand-beige rounded-full -z-10 top-50 right-50 sm:right-0 opacity-90'></div>
           <img
             src={heroMan}
             alt='Happy client using AgentHub'
