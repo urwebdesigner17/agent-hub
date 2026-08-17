@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import userRouter from '../api/routes/user.route.js'
 import authRouter from '../api/routes/auth.route.js'
+import listingRouter from '../api/routes/listing.route.js'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 
@@ -25,6 +26,7 @@ app.listen(3000, ()=>{
 
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/listing', listingRouter);
 
 //ERROR MIDDLEWARE
 app.use((err, req, res, next) => {
