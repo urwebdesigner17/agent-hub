@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   updateUserStart,
@@ -11,7 +12,6 @@ import {
   signOutUserSuccess,
   signOutUserFailure,
 } from '../redux/user/userSlice'
-import { Link } from 'react-router-dom'
 
 export default function Profile() {
   const fileRef = useRef(null)
@@ -24,6 +24,10 @@ export default function Profile() {
   const [formData, setFormData] = useState({})
   const [updateSuccess, setUpdateSuccess] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const [userListings, setUserListings] = useState([])
+  const [showListingsError, setShowListingsError] = useState(false)
+  const [listingsLoading, setListingsLoading] = useState(false)
 
   useEffect(() => {
     if (file) {
@@ -127,6 +131,28 @@ export default function Profile() {
     }
   }
 
+  const handleShowListings = async () => {
+    try {
+      setShowListingsError(false)
+      setListingsLoading(true)
+
+      const res = await fetch(`/api/user/listings/${currentUser._id}`)
+      const data = await res.json()
+
+      if (data.success === false) {
+        setShowListingsError(true)
+        setListingsLoading(false)
+        return
+      }
+
+      setUserListings(data)
+      setListingsLoading(false)
+    } catch (error) {
+      setShowListingsError(true)
+      setListingsLoading(false)
+    }
+  }
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7'>
@@ -198,6 +224,19 @@ export default function Profile() {
         Add Listing
       </Link>
 
+      <button
+        onClick={handleShowListings}
+        className='w-full mt-4 border border-brand-navy text-brand-navy rounded-lg p-3 uppercase text-sm font-medium hover:bg-brand-navy hover:text-white transition'
+      >
+        {listingsLoading ? 'Loading...' : 'Show Listings'}
+      </button>
+
+      {showListingsError && (
+        <p className='text-red-700 text-sm text-center mt-3'>
+          Error loading listings, please try again
+        </p>
+      )}
+
       <div className='flex justify-between mt-6 gap-3'>
         <button
           type='button'
@@ -220,6 +259,38 @@ export default function Profile() {
         <p className='text-brand-green mt-5 text-center'>
           Profile updated successfully!
         </p>
+      )}
+
+      {/* User listings list */}
+      {userListings && userListings.length > 0 && (
+        <div className='flex flex-col gap-4 mt-8'>
+          <h2 className='text-2xl font-semibold text-brand-navy text-center'>
+            Your Listings
+          </h2>
+
+          {userListings.map((listing) => (
+            <div
+              key={listing._id}
+              className='border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-4'
+            >
+              <Link to={`/listing/${listing._id}`} className='flex items-center gap-4 flex-1'>
+                <img
+                  src={listing.imageUrls[0]}
+                  alt={listing.name}
+                  className='h-16 w-16 object-cover rounded-lg'
+                />
+                <p className='text-brand-navy font-medium truncate hover:underline'>
+                  {listing.name}
+                </p>
+              </Link>
+
+              <div className='flex flex-col gap-1 text-sm'>
+                <button className='text-red-700 hover:underline'>Delete</button>
+                <button className='text-brand-green hover:underline'>Edit</button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Delete Confirmation Modal */}
