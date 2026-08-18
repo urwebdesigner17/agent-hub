@@ -198,13 +198,21 @@ export default function Profile() {
         Add Listing
       </Link>
 
-      <div className='flex justify-between mt-5'>
-        <span onClick={() => setShowDeleteModal(true)} className='text-red-700 cursor-pointer hover:underline'>
+      <div className='flex justify-between mt-6 gap-3'>
+        <button
+          type='button'
+          onClick={() => setShowDeleteModal(true)}
+          className='flex-1 flex items-center justify-center gap-2 border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 transition rounded-lg py-2.5 text-sm font-medium'
+        >
           Delete account
-        </span>
-        <span onClick={handleSignOut} className='text-red-700 cursor-pointer hover:underline'>
+        </button>
+        <button
+          type='button'
+          onClick={handleSignOut}
+          className='flex-1 flex items-center justify-center gap-2 border border-gray-300 text-brand-navy hover:bg-gray-100 transition rounded-lg py-2.5 text-sm font-medium'
+        >
           Sign out
-        </span>
+        </button>
       </div>
 
       {error && <p className='text-red-700 mt-5 text-center'>{error}</p>}

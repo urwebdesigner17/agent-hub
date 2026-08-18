@@ -26,6 +26,59 @@ export default function CreateListing() {
     furnished: false,
   })
 
+  // Resizes + compresses an image file down under maxSizeMB, returns a base64 string
+  const compressImage = (file, maxSizeMB = 2, maxDimension = 1600) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const objectUrl = URL.createObjectURL(file)
+
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl)
+
+        let { width, height } = img
+
+        // Scale down dimensions if too large
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width)
+            width = maxDimension
+          } else {
+            width = Math.round((width * maxDimension) / height)
+            height = maxDimension
+          }
+        }
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Try decreasing quality until under maxSizeMB or quality bottoms out
+        let quality = 0.9
+        const tryCompress = () => {
+          const dataUrl = canvas.toDataURL('image/jpeg', quality)
+          const sizeMB = (dataUrl.length * 0.75) / (1024 * 1024) // rough base64 -> bytes estimate
+
+          if (sizeMB <= maxSizeMB || quality <= 0.3) {
+            resolve(dataUrl)
+          } else {
+            quality -= 0.1
+            tryCompress()
+          }
+        }
+        tryCompress()
+      }
+
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl)
+        reject(new Error(`Could not read ${file.name}`))
+      }
+
+      img.src = objectUrl
+    })
+  }
+
   const handleImageSubmit = () => {
     if (files.length === 0) return
 
@@ -37,18 +90,7 @@ export default function CreateListing() {
     setUploading(true)
     setImageUploadError(false)
 
-    const promises = Array.from(files).map((file) => {
-      return new Promise((resolve, reject) => {
-        if (file.size > 2 * 1024 * 1024) {
-          reject(new Error(`${file.name} is over 2MB`))
-          return
-        }
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = () => reject(new Error('Error reading file'))
-      })
-    })
+    const promises = Array.from(files).map((file) => compressImage(file, 2, 1600))
 
     Promise.all(promises)
       .then((base64Images) => {
@@ -117,7 +159,6 @@ export default function CreateListing() {
         return
       }
 
-      // TODO: redirect to the new listing page once that exists
       console.log('Listing created:', data)
     } catch (error) {
       setSubmitError(error.message)
@@ -132,7 +173,6 @@ export default function CreateListing() {
       </h1>
 
       <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-6'>
-        {/* Left column - listing details */}
         <div className='flex flex-col gap-4 flex-1'>
           <input
             type='text'
@@ -287,12 +327,11 @@ export default function CreateListing() {
           {submitError && <p className='text-red-700 text-sm'>{submitError}</p>}
         </div>
 
-        {/* Right column - image upload */}
         <div className='flex flex-col flex-1 gap-4'>
           <p className='font-semibold text-brand-navy'>
             Images:
             <span className='font-normal text-gray-500 ml-2'>
-              The first image will be the cover (max 6)
+              The first image will be the cover (max 6). Large photos are compressed automatically.
             </span>
           </p>
 
