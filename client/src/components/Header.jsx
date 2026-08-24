@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FaSearch } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -12,6 +12,9 @@ export default function Header() {
   const { currentUser } = useSelector((state) => state.user)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const [searchTerm, setSearchTerm] = useState('')
 
   const handleSignOut = async () => {
     try {
@@ -32,6 +35,24 @@ export default function Header() {
     }
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const urlParams = new URLSearchParams(window.location.search)
+    urlParams.set('searchTerm', searchTerm)
+    const searchQuery = urlParams.toString()
+    navigate(`/search?${searchQuery}`)
+  }
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search)
+    const searchTermFromUrl = urlParams.get('searchTerm')
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl)
+    } else {
+      setSearchTerm('')
+    }
+  }, [location.search])
+
   return (
     <header className='bg-white shadow-md sticky top-0 z-40'>
       <div className='flex justify-between items-center max-w-6xl mx-auto px-4 py-4'>
@@ -44,11 +65,18 @@ export default function Header() {
         </Link>
 
         {/* Search bar */}
-        <form className='bg-gray-100 px-4 py-2.5 rounded-full flex items-center w-40 sm:w-72 transition focus-within:ring-2 focus-within:ring-brand-green/50'>
-          <FaSearch className='text-brand-wood' />
+        <form
+          onSubmit={handleSubmit}
+          className='bg-gray-100 px-4 py-2.5 rounded-full flex items-center w-40 sm:w-72 transition focus-within:ring-2 focus-within:ring-brand-green/50'
+        >
+          <button type='submit' aria-label='Search'>
+            <FaSearch className='text-brand-wood' />
+          </button>
           <input
-            className='bg-transparent focus:outline-none w-full ml-2 text-sm'
             type='text'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className='bg-transparent focus:outline-none w-full ml-2 text-sm'
             placeholder='Search...'
           />
         </form>
@@ -74,7 +102,6 @@ export default function Header() {
                 alt='profile'
               />
 
-              {/* Dropdown */}
               <div className='absolute right-0 top-full pt-2 hidden group-hover:block'>
                 <div className='bg-white rounded-lg shadow-lg border border-gray-100 w-44 overflow-hidden'>
                   <div className='px-4 py-3 border-b border-gray-100'>
