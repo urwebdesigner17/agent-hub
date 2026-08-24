@@ -1,7 +1,11 @@
 // src/pages/Search.jsx
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function Search() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [sidebarData, setSidebarData] = useState({
     searchTerm: '',
     type: 'all',
@@ -14,6 +18,49 @@ export default function Search() {
 
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search)
+    const searchTermFromUrl = urlParams.get('searchTerm')
+    const typeFromUrl = urlParams.get('type')
+    const parkingFromUrl = urlParams.get('parking')
+    const furnishedFromUrl = urlParams.get('furnished')
+    const offerFromUrl = urlParams.get('offer')
+    const sortFromUrl = urlParams.get('sort')
+    const orderFromUrl = urlParams.get('order')
+
+    if (
+      searchTermFromUrl ||
+      typeFromUrl ||
+      parkingFromUrl ||
+      furnishedFromUrl ||
+      offerFromUrl ||
+      sortFromUrl ||
+      orderFromUrl
+    ) {
+      setSidebarData({
+        searchTerm: searchTermFromUrl || '',
+        type: typeFromUrl || 'all',
+        parking: parkingFromUrl === 'true' ? true : false,
+        furnished: furnishedFromUrl === 'true' ? true : false,
+        offer: offerFromUrl === 'true' ? true : false,
+        sort: sortFromUrl || 'createdAt',
+        order: orderFromUrl || 'desc',
+      })
+    }
+
+    const fetchListings = async () => {
+      setLoading(true)
+
+      const res = await fetch(`/api/listing/get?${urlParams.toString()}`)
+      const data = await res.json()
+
+      setListings(data)
+      setLoading(false)
+    }
+
+    fetchListings()
+  }, [location.search])
 
   const handleChange = (e) => {
     const { id, type, checked, value } = e.target
@@ -43,7 +90,18 @@ export default function Search() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // TODO: build URLSearchParams from sidebarData and navigate/fetch — next step
+
+    const urlParams = new URLSearchParams()
+    urlParams.set('searchTerm', sidebarData.searchTerm)
+    urlParams.set('type', sidebarData.type)
+    urlParams.set('parking', sidebarData.parking)
+    urlParams.set('furnished', sidebarData.furnished)
+    urlParams.set('offer', sidebarData.offer)
+    urlParams.set('sort', sidebarData.sort)
+    urlParams.set('order', sidebarData.order)
+
+    const searchQuery = urlParams.toString()
+    navigate(`/search?${searchQuery}`)
   }
 
   return (
@@ -179,6 +237,14 @@ export default function Search() {
               Loading...
             </p>
           )}
+
+          {!loading &&
+            listings.length > 0 &&
+            listings.map((listing) => (
+              <p key={listing._id} className='text-brand-navy'>
+                {listing.name}
+              </p>
+            ))}
         </div>
       </div>
     </div>
