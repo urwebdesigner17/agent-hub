@@ -1,0 +1,186 @@
+// src/pages/Search.jsx
+import React, { useState } from 'react'
+
+export default function Search() {
+  const [sidebarData, setSidebarData] = useState({
+    searchTerm: '',
+    type: 'all',
+    parking: false,
+    furnished: false,
+    offer: false,
+    sort: 'createdAt',
+    order: 'desc',
+  })
+
+  const [listings, setListings] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const handleChange = (e) => {
+    const { id, type, checked, value } = e.target
+
+    if (id === 'all' || id === 'rent' || id === 'sale') {
+      setSidebarData({ ...sidebarData, type: id })
+      return
+    }
+
+    if (id === 'searchTerm') {
+      setSidebarData({ ...sidebarData, searchTerm: value })
+      return
+    }
+
+    if (type === 'checkbox') {
+      setSidebarData({ ...sidebarData, [id]: checked })
+      return
+    }
+
+    if (id === 'sort_order') {
+      const sort = value.split('_')[0] || 'createdAt'
+      const order = value.split('_')[1] || 'desc'
+      setSidebarData({ ...sidebarData, sort, order })
+      return
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // TODO: build URLSearchParams from sidebarData and navigate/fetch — next step
+  }
+
+  return (
+    <div className='flex flex-col sm:flex-row max-w-6xl mx-auto'>
+      {/* Left: Search controls */}
+      <div className='p-5 border-b sm:border-r sm:border-b-0 border-gray-200 sm:min-h-screen sm:w-72'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+          <div className='flex items-center gap-2'>
+            <label className='whitespace-nowrap font-semibold text-brand-navy'>
+              Search Term:
+            </label>
+            <input
+              type='text'
+              id='searchTerm'
+              placeholder='Search...'
+              value={sidebarData.searchTerm}
+              onChange={handleChange}
+              className='border border-gray-300 focus:border-brand-navy focus:outline-none rounded-lg p-2.5 w-full transition'
+            />
+          </div>
+
+          <div className='flex flex-col gap-2'>
+            <label className='font-semibold text-brand-navy'>Type:</label>
+            <div className='flex gap-4 flex-wrap'>
+              <div className='flex items-center gap-2'>
+                <input
+                  type='checkbox'
+                  id='all'
+                  checked={sidebarData.type === 'all'}
+                  onChange={handleChange}
+                  className='w-4 h-4 accent-brand-green'
+                />
+                <span>Rent & Sale</span>
+              </div>
+              <div className='flex items-center gap-2'>
+                <input
+                  type='checkbox'
+                  id='rent'
+                  checked={sidebarData.type === 'rent'}
+                  onChange={handleChange}
+                  className='w-4 h-4 accent-brand-green'
+                />
+                <span>Rent</span>
+              </div>
+              <div className='flex items-center gap-2'>
+                <input
+                  type='checkbox'
+                  id='sale'
+                  checked={sidebarData.type === 'sale'}
+                  onChange={handleChange}
+                  className='w-4 h-4 accent-brand-green'
+                />
+                <span>Sale</span>
+              </div>
+              <div className='flex items-center gap-2'>
+                <input
+                  type='checkbox'
+                  id='offer'
+                  checked={sidebarData.offer}
+                  onChange={handleChange}
+                  className='w-4 h-4 accent-brand-green'
+                />
+                <span>Offer</span>
+              </div>
+            </div>
+          </div>
+
+          <div className='flex flex-col gap-2'>
+            <label className='font-semibold text-brand-navy'>Amenities:</label>
+            <div className='flex gap-4 flex-wrap'>
+              <div className='flex items-center gap-2'>
+                <input
+                  type='checkbox'
+                  id='parking'
+                  checked={sidebarData.parking}
+                  onChange={handleChange}
+                  className='w-4 h-4 accent-brand-green'
+                />
+                <span>Parking</span>
+              </div>
+              <div className='flex items-center gap-2'>
+                <input
+                  type='checkbox'
+                  id='furnished'
+                  checked={sidebarData.furnished}
+                  onChange={handleChange}
+                  className='w-4 h-4 accent-brand-green'
+                />
+                <span>Furnished</span>
+              </div>
+            </div>
+          </div>
+
+          <div className='flex items-center gap-2'>
+            <label className='font-semibold text-brand-navy'>Sort:</label>
+            <select
+              id='sort_order'
+              onChange={handleChange}
+              defaultValue='createdAt_desc'
+              className='border border-gray-300 rounded-lg p-2.5 focus:border-brand-navy focus:outline-none'
+            >
+              <option value='regularPrice_desc'>Price: high to low</option>
+              <option value='regularPrice_asc'>Price: low to high</option>
+              <option value='createdAt_desc'>Latest</option>
+              <option value='createdAt_asc'>Oldest</option>
+            </select>
+          </div>
+
+          <button
+            type='submit'
+            className='bg-brand-green text-white rounded-lg p-3 uppercase font-medium hover:bg-brand-greenDark transition'
+          >
+            Search
+          </button>
+        </form>
+      </div>
+
+      {/* Right: Results */}
+      <div className='flex-1'>
+        <h1 className='text-3xl font-semibold border-b border-gray-200 p-5 text-brand-navy'>
+          Listing results
+        </h1>
+
+        <div className='p-5 flex flex-wrap gap-4'>
+          {!loading && listings.length === 0 && (
+            <p className='text-gray-500 text-lg w-full text-center'>
+              No listings found
+            </p>
+          )}
+
+          {loading && (
+            <p className='text-brand-navy text-lg w-full text-center'>
+              Loading...
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
