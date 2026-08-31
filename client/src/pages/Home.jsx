@@ -1,9 +1,50 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import heroMan from '../assets/hero-man.png'
 import { FaSearch, FaHandshake, FaKey } from 'react-icons/fa'
+import heroMan from '../assets/hero-man.png'
+import ListingItem from '../components/ListingItem'
 
 export default function Home() {
+  const [offerListings, setOfferListings] = useState([])
+  const [rentListings, setRentListings] = useState([])
+  const [saleListings, setSaleListings] = useState([])
+
+  useEffect(() => {
+    const fetchOfferListings = async () => {
+      try {
+        const res = await fetch('/api/listing/get?offer=true&limit=4')
+        const data = await res.json()
+        setOfferListings(data)
+        fetchRentListings()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const fetchRentListings = async () => {
+      try {
+        const res = await fetch('/api/listing/get?type=rent&limit=4')
+        const data = await res.json()
+        setRentListings(data)
+        fetchSaleListings()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const fetchSaleListings = async () => {
+      try {
+        const res = await fetch('/api/listing/get?type=sale&limit=4')
+        const data = await res.json()
+        setSaleListings(data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchOfferListings()
+  }, [])
+
   return (
     <div>
       {/* Hero Section */}
@@ -36,14 +77,73 @@ export default function Home() {
           <div className='absolute w-72 h-72 sm:w-80 sm:h-80 bg-brand-green rounded-full -z-10 top-4 left-1/2 -translate-x-1/2 sm:left-8 sm:translate-x-0 opacity-90'></div>
           <div className='absolute w-24 h-24 bg-brand-navy rounded-full -z-10 bottom-0 left-0 opacity-90'></div>
           <div className='absolute w-20 h-20 bg-brand-wood rounded-full -z-10 top-0 right-4 sm:right-0 opacity-90'></div>
-          <div className='absolute w-40 h-40 bg-brand-beige rounded-full -z-10 top-50 right-50 sm:right-0 opacity-90'></div>
           <img
             src={heroMan}
             alt='Happy client using AgentHub'
-            className='relative w-64 sm:w-80 h-80 sm:h-96 object-cover rounded-3xl'
+            className='relative w-64 sm:w-80 h-80 sm:h-96 object-cover rounded-3xl shadow-lg'
           />
         </div>
       </section>
+
+      {/* Listings Sections */}
+      <div className='max-w-6xl mx-auto p-3 flex flex-col gap-10 my-10'>
+        {offerListings && offerListings.length > 0 && (
+          <div className='flex flex-col gap-4'>
+            <div className='flex justify-between items-end'>
+              <h2 className='text-2xl font-semibold text-brand-navy'>Recent offers</h2>
+              <Link
+                to='/search?offer=true'
+                className='text-sm text-brand-green font-medium hover:underline'
+              >
+                Show more offers
+              </Link>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+              {offerListings.map((listing) => (
+                <ListingItem listing={listing} key={listing._id} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {rentListings && rentListings.length > 0 && (
+          <div className='flex flex-col gap-4'>
+            <div className='flex justify-between items-end'>
+              <h2 className='text-2xl font-semibold text-brand-navy'>Places for rent</h2>
+              <Link
+                to='/search?type=rent'
+                className='text-sm text-brand-green font-medium hover:underline'
+              >
+                Show more places for rent
+              </Link>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+              {rentListings.map((listing) => (
+                <ListingItem listing={listing} key={listing._id} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {saleListings && saleListings.length > 0 && (
+          <div className='flex flex-col gap-4'>
+            <div className='flex justify-between items-end'>
+              <h2 className='text-2xl font-semibold text-brand-navy'>Places for sale</h2>
+              <Link
+                to='/search?type=sale'
+                className='text-sm text-brand-green font-medium hover:underline'
+              >
+                Show more places for sale
+              </Link>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+              {saleListings.map((listing) => (
+                <ListingItem listing={listing} key={listing._id} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* How It Works Section */}
       <section className='bg-white py-16'>
