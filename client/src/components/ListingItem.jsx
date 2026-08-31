@@ -5,7 +5,7 @@ import { FaMapMarkerAlt, FaBed, FaBath } from 'react-icons/fa'
 
 export default function ListingItem({ listing }) {
   return (
-    <div className='bg-white shadow-md hover:shadow-lg transition-shadow rounded-lg overflow-hidden w-full sm:w-[300px]'>
+    <div className='bg-white shadow-md hover:shadow-lg transition-shadow rounded-lg overflow-hidden w-full'>
       <Link to={`/listing/${listing._id}`}>
         <div className='relative'>
           <img

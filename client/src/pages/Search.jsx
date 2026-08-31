@@ -19,6 +19,7 @@ export default function Search() {
 
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(false)
+  const [showMore, setShowMore] = useState(false)
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search)
@@ -52,9 +53,16 @@ export default function Search() {
 
     const fetchListings = async () => {
       setLoading(true)
+      setShowMore(false)
 
       const res = await fetch(`/api/listing/get?${urlParams.toString()}`)
       const data = await res.json()
+
+      if (data.length > 8) {
+        setShowMore(true)
+      } else {
+        setShowMore(false)
+      }
 
       setListings(data)
       setLoading(false)
@@ -103,6 +111,23 @@ export default function Search() {
 
     const searchQuery = urlParams.toString()
     navigate(`/search?${searchQuery}`)
+  }
+
+  const handleShowMore = async () => {
+    const numberOfListings = listings.length
+    const startIndex = numberOfListings
+
+    const urlParams = new URLSearchParams(location.search)
+    urlParams.set('startIndex', startIndex)
+
+    const res = await fetch(`/api/listing/get?${urlParams.toString()}`)
+    const data = await res.json()
+
+    if (data.length < 9) {
+      setShowMore(false)
+    }
+
+    setListings([...listings, ...data])
   }
 
   return (
@@ -226,7 +251,7 @@ export default function Search() {
           Listing results
         </h1>
 
-        <div className='p-5 flex flex-wrap gap-4'>
+                <div className='p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
           {!loading && listings.length === 0 && (
             <p className='text-gray-500 text-lg w-full text-center'>
               No listings found
@@ -244,6 +269,15 @@ export default function Search() {
             listings.map((listing) => (
               <ListingItem key={listing._id} listing={listing} />
             ))}
+
+          {showMore && (
+            <button
+              onClick={handleShowMore}
+              className='col-span-full text-brand-navy font-medium text-center border border-brand-navy rounded-lg p-3 uppercase hover:bg-brand-navy hover:text-white transition my-4'
+            >
+              Show more
+            </button>
+          )}
         </div>
       </div>
     </div>
