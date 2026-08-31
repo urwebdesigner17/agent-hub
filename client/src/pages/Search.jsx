@@ -1,6 +1,7 @@
 // src/pages/Search.jsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import ListingItem from '../components/ListingItem'
 
 export default function Search() {
   const navigate = useNavigate()
@@ -241,9 +242,7 @@ export default function Search() {
           {!loading &&
             listings.length > 0 &&
             listings.map((listing) => (
-              <p key={listing._id} className='text-brand-navy'>
-                {listing.name}
-              </p>
+              <ListingItem key={listing._id} listing={listing} />
             ))}
         </div>
       </div>
