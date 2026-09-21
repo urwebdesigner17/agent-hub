@@ -96,13 +96,19 @@ export const getListings = async (req, res, next) => {
         const sort = req.query.sort || 'createdAt';
         const order = req.query.order || 'desc';
 
-        const listings = await Listing.find({
+        const query = {
             name: { $regex: searchTerm, $options: 'i' },
             offer,
             furnished,
             parking,
             type,
-        })
+        };
+
+        if (req.query.userRef) {
+            query.userRef = req.query.userRef;
+        }
+
+        const listings = await Listing.find(query)
             .sort({ [sort]: order })
             .limit(limit)
             .skip(startIndex);

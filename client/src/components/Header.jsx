@@ -117,10 +117,10 @@ export default function Header() {
                     Profile
                   </Link>
                   <Link
-                    to='/my-listings'
+                    to='/dashboard'
                     className='block px-4 py-2.5 text-sm text-brand-navy hover:bg-gray-50 hover:text-brand-green transition'
                   >
-                    Listings
+                    Dashboard
                   </Link>
                   <button
                     onClick={handleSignOut}

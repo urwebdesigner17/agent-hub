@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://cdn-icons-png.flaticon.com/512/149/149071.png"
     },
+    title: {
+        type: String,
+        default: "Real Estate Agent"
+    },
+    bio: {
+        type: String,
+        default: ""
+    },
 },{timestamps: true});
 
 const User = mongoose.model('User', userSchema)

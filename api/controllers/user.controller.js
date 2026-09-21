@@ -25,6 +25,8 @@ export const updateUser = async (req, res, next) => {
                     email: req.body.email,
                     password: req.body.password,
                     avatar: req.body.avatar,
+                    title: req.body.title,
+                    bio: req.body.bio,
                 },
             },
             { new: true }
@@ -59,6 +61,22 @@ export const getUserListings = async (req, res, next) => {
     try {
         const listings = await Listing.find({ userRef: req.params.id });
         res.status(200).json(listings);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUsers = async (req, res, next) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+
+        const agentIds = await Listing.distinct('userRef');
+
+        const users = await User.find({ _id: { $in: agentIds } })
+            .select('-password')
+            .limit(limit);
+
+        res.status(200).json(users);
     } catch (error) {
         next(error);
     }

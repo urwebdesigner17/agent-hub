@@ -34,7 +34,7 @@ export default function OAuth() {
       }
 
       dispatch(signInSuccess(data));
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       dispatch(signInFailure(error.message));
       console.error("Could not sign in with Google:", error);
